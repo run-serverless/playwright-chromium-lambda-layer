@@ -1,15 +1,34 @@
-# Playwright AWS Lambda Layer
+# Playwright AWS Lambda with Docker
 
-This project creates an AWS Lambda Layer containing Playwright for use in AWS Lambda functions.
+This project demonstrates how to run Playwright in AWS Lambda using a custom Docker container. This approach is more reliable than using Lambda Layers due to size constraints and dependency management.
+
+## Features
+
+- 🐳 Docker-based deployment for consistent environments
+- ⚡ Serverless Framework for easy AWS deployment
+- 🚀 Optimized for AWS Lambda with Node.js 20
+- 🔄 Includes all necessary system dependencies for Playwright
 
 ## Prerequisites
 
 - Node.js 20.x or later
 - npm or yarn
+- Docker
 - AWS CLI configured with appropriate credentials
-- Serverless Framework installed globally (`npm install -g serverless`)
+- Serverless Framework (`npm install -g serverless`)
 
-## Installation
+## Project Structure
+
+```
+.
+├── app/
+│   └── handler.js     # Lambda function handler
+├── Dockerfile         # Docker configuration
+├── package.json       # Project dependencies
+└── serverless.yml     # Serverless Framework configuration
+```
+
+## Getting Started
 
 1. Clone this repository
 2. Install dependencies:
@@ -17,17 +36,65 @@ This project creates an AWS Lambda Layer containing Playwright for use in AWS La
    npm install
    ```
 
-## Building the Layer
+## Local Development
 
-To build the Playwright layer with all required dependencies:
+### Build the Docker Image
 
 ```bash
-npm run build
+npm run docker:build
 ```
 
-This command will:
-1. Clean up any existing layer directory
-2. Create a new layer structure
+### Run Locally
+
+```bash
+npm run docker:run
+```
+
+This will start the Lambda runtime interface emulator on `http://localhost:9000`.
+
+### Test the Lambda Function
+
+```bash
+curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+```
+
+## Deployment
+
+### Deploy to AWS
+
+```bash
+# Login to AWS ECR (if not already logged in)
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <your-account-id>.dkr.ecr.us-east-1.amazonaws.com
+
+# Deploy
+npm run deploy
+```
+
+### Remove the Deployment
+
+```bash
+npx serverless remove
+```
+
+## Configuration
+
+### Environment Variables
+
+- `NODE_ENV`: Set to `production` for production deployments
+
+### AWS Configuration
+
+Update the `serverless.yml` file with your preferred AWS region and other settings.
+
+## Troubleshooting
+
+- **Docker Build Issues**: Ensure you have enough disk space and memory allocated to Docker
+- **Deployment Failures**: Check AWS IAM permissions and ensure your AWS credentials are configured correctly
+- **Playwright Issues**: The Docker image includes all necessary system dependencies, but if you encounter issues, check the AWS Lambda logs using `npm run logs`
+
+## License
+
+MIT
 3. Install production dependencies
 4. Install Playwright's browser binaries
 
