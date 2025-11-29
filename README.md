@@ -77,6 +77,56 @@ functions:
     runtime: nodejs22.x
 ```
 
+### Lambda Function Example
+
+Here's a simple Lambda function that uses the Playwright layer to take a screenshot of a webpage:
+
+```javascript
+const playwright = require('playwright-core');
+const chromium = require('@sparticuz/chromium');
+
+exports.handler = async (event) => {
+  let browser = null;
+  
+  try {
+    // Launch browser with Chromium
+    browser = await playwright.chromium.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
+
+    const page = await browser.newPage();
+    await page.goto(event.url || 'https://example.com');
+    
+    // Take a screenshot
+    const screenshot = await page.screenshot({ type: 'png' });
+    
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'image/png' },
+      body: screenshot.toString('base64'),
+      isBase64Encoded: true
+    };
+    
+  } catch (error) {
+    console.error('Error:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message })
+    };
+  } finally {
+    if (browser) await browser.close();
+  }
+};
+```
+
+To use this function:
+1. Create a new Lambda function with Node.js 22.x runtime
+2. Add the deployed layer to your function
+3. Set the handler to `index.handler`
+4. Test with an event like: `{ "url": "https://example.com" }`
+
 ## Important Notes
 
 - The layer includes only the Playwright core and Chromium browser to keep the size manageable.
