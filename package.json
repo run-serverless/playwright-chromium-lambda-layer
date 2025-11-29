@@ -1,25 +1,23 @@
 {
-  "name": "playwright-aws-lambda",
-  "version": "2.0.0",
-  "description": "AWS Lambda with Playwright using Docker",
-  "main": "handler.js",
+  "name": "playwright-aws-lambda-layer",
+  "version": "1.0.0",
+  "description": "AWS Lambda Layer with Playwright for Serverless Framework",
   "scripts": {
-    "deploy": "serverless deploy",
-    "docker:build": "docker build -t playwright-lambda .",
-    "docker:run": "docker run -p 9000:8080 playwright-lambda",
-    "docker:call": "curl -XPOST http://localhost:9000/2015-03-31/functions/function/invocations -d '{ \"url\": \"https://shillitto.com\" }' && echo"
+    "build": "npm run clean && mkdir -p layer && cd layer && npm init -y && npm install --omit=dev --arch=x64 --platform=linux @sparticuz/chromium playwright-core && rm package*.json && cd ..",
+    "clean": "rm -rf layer",
+    "deploy": "serverless deploy"
   },
   "keywords": [
     "aws",
     "lambda",
+    "layer",
     "playwright",
-    "docker",
     "serverless"
   ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "serverless": "^3.35.0"
+    "serverless": "^4.25.0"
   },
   "engines": {
     "node": ">=20.0.0"

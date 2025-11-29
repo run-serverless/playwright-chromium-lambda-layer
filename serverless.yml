@@ -1,33 +1,28 @@
-service: playwright-docker
+service: playwright-layer
 
-frameworkVersion: '3'
+frameworkVersion: '4'
 
 provider:
   name: aws
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
-  ecr:
-    images:
-      playwright-app:
-        path: ./
-  environment:
-    NODE_ENV: production
+  runtime: nodejs22.x
+  deploymentBucket:
+    name: ${aws:accountId}-serverless-deploys
+    serverSideEncryption: AES256
+    blockPublicAccess: true
+
+layers:
+  playwright:
+    path: layer
+    name: ${self:service}-${self:provider.stage}
+    description: Playwright layer for Node.js
+    compatibleRuntimes:
+      - nodejs20.x
+      - nodejs22.x
+    licenseInfo: MIT
+    retain: true
 
 package:
-  patterns:
-    - '!**/*'
-    - 'app/**'
-    - 'node_modules/**'
-    - 'package.json'
+  excludeDevDependencies: false
 
-functions:
-  playwright:
-    image:
-      name: playwright-app
-    timeout: 30
-    memorySize: 1024
-    events:
-      - http:
-          path: /
-          method: any
-          cors: true

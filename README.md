@@ -1,31 +1,27 @@
-# Playwright AWS Lambda with Docker
+# Playwright AWS Lambda Layer
 
-This project demonstrates how to run Playwright in AWS Lambda using a custom Docker container. This approach is more reliable than using Lambda Layers due to size constraints and dependency management.
+This project creates an AWS Lambda Layer containing Playwright and its dependencies, optimized for AWS Lambda with Node.js 22.x.
 
 ## Features
 
-- 🐳 Docker-based deployment for consistent environments
-- ⚡ Serverless Framework for easy AWS deployment
-- 🚀 Optimized for AWS Lambda with Node.js 20
-- 🔄 Includes all necessary system dependencies for Playwright
+- 🚀 Optimized for AWS Lambda with Node.js 22.x
+- ⚡ Lightweight layer with only necessary dependencies
+- 🔄 Uses `@sparticuz/chromium` for Chromium compatibility with AWS Lambda
+- 📦 Easy deployment with Serverless Framework
 
 ## Prerequisites
 
 - Node.js 20.x or later
 - npm or yarn
-- Docker
 - AWS CLI configured with appropriate credentials
-- Serverless Framework (`npm install -g serverless`)
 
 ## Project Structure
 
 ```
 .
-├── app/
-│   └── handler.js     # Lambda function handler
-├── Dockerfile         # Docker configuration
-├── package.json       # Project dependencies
-└── serverless.yml     # Serverless Framework configuration
+├── layer/              # Generated directory containing the layer content
+├── package.json        # Project dependencies and build scripts
+└── serverless.yml      # Serverless Framework configuration
 ```
 
 ## Getting Started
@@ -36,90 +32,39 @@ This project demonstrates how to run Playwright in AWS Lambda using a custom Doc
    npm install
    ```
 
-## Local Development
+## Building the Layer
 
-### Build the Docker Image
+To build the layer with all required dependencies:
 
 ```bash
-npm run docker:build
+npm run build
 ```
 
-### Run Locally
+This will:
+1. Clean any existing layer directory
+2. Create a new layer directory
+3. Install the necessary dependencies with AWS Lambda compatible binaries
+4. Clean up temporary files
+
+## Deploying the Layer
+
+To deploy the layer to AWS:
 
 ```bash
-npm run docker:run
-```
-
-This will start the Lambda runtime interface emulator on `http://localhost:9000`.
-
-### Test the Lambda Function
-
-```bash
-curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
-```
-
-## Deployment
-
-### Deploy to AWS
-
-```bash
-# Login to AWS ECR (if not already logged in)
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <your-account-id>.dkr.ecr.us-east-1.amazonaws.com
-
-# Deploy
 npm run deploy
 ```
 
-### Remove the Deployment
+Or using the Serverless Framework directly:
 
 ```bash
-npx serverless remove
+npx serverless deploy
 ```
 
-## Configuration
-
-### Environment Variables
-
-- `NODE_ENV`: Set to `production` for production deployments
-
-### AWS Configuration
-
-Update the `serverless.yml` file with your preferred AWS region and other settings.
-
-## Troubleshooting
-
-- **Docker Build Issues**: Ensure you have enough disk space and memory allocated to Docker
-- **Deployment Failures**: Check AWS IAM permissions and ensure your AWS credentials are configured correctly
-- **Playwright Issues**: The Docker image includes all necessary system dependencies, but if you encounter issues, check the AWS Lambda logs using `npm run logs`
-
-## License
-
-MIT
-3. Install production dependencies
-4. Install Playwright's browser binaries
-
-## Configuration
-
-1. Update the `serverless.yml` file with your preferred AWS region and deployment bucket name.
-2. The layer is configured to use Node.js 20.x or later. The layer is compatible with Node.js 20.x, 22.x, and 24.x runtimes.
-
-## Deployment
-
-To deploy the Playwright layer to AWS:
-
-```bash
-# Install dependencies and build the layer
-npm run deploy -- --stage dev  # or prod, staging, etc.
-
-# Deploy to a specific region (optional)
-npm run deploy -- --stage dev --region us-east-1
-```
-
-> Note: The deploy script will automatically build the layer before deploying if it doesn't exist.
-
-## Usage in Lambda Functions
+## Using the Layer in Your Lambda Function
 
 After deployment, you can reference this layer in your Lambda functions. The layer will be available in the AWS Lambda console under "Layers".
+
+In your Lambda function's `serverless.yml`, reference the layer using its ARN.
 
 Example Lambda function configuration:
 
@@ -128,16 +73,13 @@ functions:
   myFunction:
     handler: handler.handler
     layers:
-      - arn:aws:lambda:REGION:ACCOUNT_ID:layer:playwright-layer-dev:1
-    runtime: nodejs20.x
+      - arn:aws:lambda:${aws:region}:${aws:accountId}:layer:playwright-layer-${self:provider.stage}:1
+    runtime: nodejs22.x
 ```
 
 ## Important Notes
 
 - The layer includes only the Playwright core and Chromium browser to keep the size manageable.
-- The layer size is optimized by excluding unnecessary files and dependencies.
-- Browser binaries are installed during the `postinstall` script.
-- The layer is configured to be compatible with Node.js 18.x runtime.
 
 ## Cleanup
 
@@ -146,7 +88,3 @@ To remove the deployed layer and associated resources:
 ```bash
 serverless remove --stage dev  # or whatever stage you used
 ```
-
-## License
-
-MIT
