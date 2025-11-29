@@ -1,0 +1,33 @@
+service: playwright-layer
+
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  runtime: nodejs24.x
+  deploymentBucket:
+    name: ${aws:accountId}-serverless-deploys
+    serverSideEncryption: AES256
+    blockPublicAccess: true
+
+layers:
+  playwright:
+    path: layer
+    name: ${self:service}-${self:provider.stage}
+    description: Playwright layer for Node.js
+    compatibleRuntimes:
+      - nodejs20.x
+      - nodejs22.x
+      - nodejs24.x
+    licenseInfo: MIT
+    retain: true
+
+# Don't create a default function
+functions: {}
+
+# Don't create a default package
+package:
+  individually: true
+  excludeDevDependencies: true

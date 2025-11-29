@@ -1,0 +1,27 @@
+{
+  "name": "playwright-aws-lambda-layer",
+  "version": "1.0.0",
+  "description": "AWS Lambda Layer with Playwright for Serverless Framework",
+  "scripts": {
+    "build": "rm -rf layer && mkdir -p layer/ && cp package.json package-lock.json layer/ && cd layer/ && npm install --production && playwright install --with-deps chromium",
+    "deploy": "serverless deploy"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "layer",
+    "playwright",
+    "serverless"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "serverless": "^4.25.0"
+  },
+  "dependencies": {
+    "playwright": "^1.57.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
