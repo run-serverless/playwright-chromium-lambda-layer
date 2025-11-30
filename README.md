@@ -1,4 +1,4 @@
-# Playwright AWS Lambda Layer
+# Playwright and Chromium AWS Lambda Layer
 
 An AWS Lambda Layer containing [Playwright](https://www.npmjs.com/package/playwright) and Chromium, optimized for AWS Lambda with Node.js 22.x runtime, and deployed using the Serverless Framework v4.
 
