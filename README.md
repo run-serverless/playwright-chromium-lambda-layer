@@ -41,7 +41,7 @@ Once deployed, the console will output a layer ARN like below:
 
 ```bash
 layers:
-  playwright: arn:aws:lambda:us-east-1:272354801446:layer:playwright-layer-dev:1
+  playwright: arn:aws:lambda:us-east-1:272354801446:layer:playwright-chromium-layer-dev:1
 ```
 
 ### Deploying to production and staging environments
@@ -63,11 +63,13 @@ functions:
   myFunction:
     handler: handler.handler
     layers:
-      - arn:aws:lambda:${aws:region}:${aws:accountId}:layer:playwright-layer-${self:provider.stage}:1
+      - arn:aws:lambda:${aws:region}:${aws:accountId}:layer:playwright-chromium-layer-${self:provider.stage}:1
     runtime: nodejs22.x
 ```
 
 ### Example Lambda Function
+
+Once the Layer is attached to your Lambda, Playwright and Chromium can be imported (required) and used in your Lambda function. You do not need to install them via NPM or Yarn as part of you application and they can be excluded from any deployments.
 
 Here's how to use Playwright with Chromium in your Lambda function:
 

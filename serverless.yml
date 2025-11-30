@@ -1,4 +1,4 @@
-service: playwright-layer
+service: playwright-chromium-layer
 
 frameworkVersion: '4'
 

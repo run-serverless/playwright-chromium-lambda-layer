@@ -1,7 +1,7 @@
 {
-  "name": "playwright-aws-lambda-layer",
+  "name": "playwright-chromium-aws-lambda-layer",
   "version": "1.0.0",
-  "description": "AWS Lambda Layer with Playwright for Serverless Framework",
+  "description": "AWS Lambda Layer with Playwright, using Chromium and the Serverless Framework",
   "scripts": {
     "build": "npm run clean && mkdir -p layer && cd layer && npm init -y && npm install --omit=dev --arch=x64 --platform=linux @sparticuz/chromium playwright-core && rm package*.json && cd ..",
     "clean": "rm -rf layer",
