@@ -1,72 +1,62 @@
 # Playwright AWS Lambda Layer
 
-This project creates an AWS Lambda Layer containing Playwright and its dependencies, optimized for AWS Lambda with Node.js 22.x.
+An AWS Lambda Layer containing [Playwright](https://www.npmjs.com/package/playwright) and Chromium, optimized for AWS Lambda with Node.js 22.x runtime, and deployed using the Serverless Framework v4.
 
-## Features
-
-- 🚀 Optimized for AWS Lambda with Node.js 22.x
-- ⚡ Lightweight layer with only necessary dependencies
-- 🔄 Uses `@sparticuz/chromium` for Chromium compatibility with AWS Lambda
-- 📦 Easy deployment with Serverless Framework
-
-## Prerequisites
+## Requirements
 
 - Node.js 20.x or later
-- npm or yarn
-- AWS CLI configured with appropriate credentials
+- NPM or Yarn
+- AWS CLI installed and configured with credentials
+- A centralised Serverless Framework deployment S3 bucket using the format <aws-account-id>--serverless-deploys
 
-## Project Structure
+## Installation
 
+Install NPM dependencies:
+
+```bash
+npm install
 ```
-.
-├── layer/              # Generated directory containing the layer content
-├── package.json        # Project dependencies and build scripts
-└── serverless.yml      # Serverless Framework configuration
-```
 
-## Getting Started
-
-1. Clone this repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+This will install the Serverless Framework used for deploying the layer to AWS.
 
 ## Building the Layer
 
-To build the layer with all required dependencies:
+Build the layer with all required dependencies:
 
 ```bash
 npm run build
 ```
 
-This will:
-1. Clean any existing layer directory
-2. Create a new layer directory
-3. Install the necessary dependencies with AWS Lambda compatible binaries
-4. Clean up temporary files
+This will install the Playwright (playwright-core) library and an file size optimised version of Chromium ([@sparticuz/chromium](https://www.npmjs.com/package/@sparticuz/chromium)) which fits within the AWS Lambda layer size limit of 250MB.
 
-## Deploying the Layer
+## Deployment
 
-To deploy the layer to AWS:
-
-```bash
-npm run deploy
-```
-
-Or using the Serverless Framework directly:
+Deploy the layer to AWS:
 
 ```bash
 npx serverless deploy
 ```
 
-## Using the Layer in Your Lambda Function
+Once deployed, the console will output a layer ARN like below:
 
-After deployment, you can reference this layer in your Lambda functions. The layer will be available in the AWS Lambda console under "Layers".
+```bash
+layers:
+  playwright: arn:aws:lambda:us-east-1:272354801446:layer:playwright-layer-dev:1
+```
 
-In your Lambda function's `serverless.yml`, reference the layer using its ARN.
+### Deploying to production and staging environments
 
-Example Lambda function configuration:
+Deploy infrastructure with a specific stage name appended to the layer name. In the example below the layer will have **-production** appended to the name.
+
+```bash
+npx serverless deploy --stage production
+```
+
+## Usage
+
+### Adding the layer to your Lambda Function (using Serverless Framework)
+
+Reference the layer in your Lambda functions in the `serverless.yml` file, like this:
 
 ```yaml
 functions:
@@ -77,9 +67,9 @@ functions:
     runtime: nodejs22.x
 ```
 
-### Lambda Function Example
+### Example Lambda Function
 
-Here's a simple Lambda function that uses the Playwright layer to take a screenshot of a webpage:
+Here's how to use Playwright with Chromium in your Lambda function:
 
 ```javascript
 const playwright = require('playwright-core');
@@ -89,7 +79,6 @@ exports.handler = async (event) => {
   let browser = null;
   
   try {
-    // Launch browser with Chromium
     browser = await playwright.chromium.launch({
       args: chromium.args,
       executablePath: await chromium.executablePath(),
@@ -99,7 +88,6 @@ exports.handler = async (event) => {
     const page = await browser.newPage();
     await page.goto(event.url || 'https://example.com');
     
-    // Take a screenshot
     const screenshot = await page.screenshot({ type: 'png' });
     
     return {
@@ -121,20 +109,6 @@ exports.handler = async (event) => {
 };
 ```
 
-To use this function:
-1. Create a new Lambda function with Node.js 22.x runtime
-2. Add the deployed layer to your function
-3. Set the handler to `index.handler`
-4. Test with an event like: `{ "url": "https://example.com" }`
+The example above will take a screenshot of the URL provided in the event object and return it as a base64 encoded image.
 
-## Important Notes
-
-- The layer includes only the Playwright core and Chromium browser to keep the size manageable.
-
-## Cleanup
-
-To remove the deployed layer and associated resources:
-
-```bash
-serverless remove --stage dev  # or whatever stage you used
-```
+Note: The layer is currently only compatible with Node.js 20.x and 22.x due to dependency issues with Node.js 24.x. Make sure your Lambda is running on the Node.js 20.x or 22.x runtime.

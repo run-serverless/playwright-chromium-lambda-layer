@@ -12,6 +12,7 @@
     "lambda",
     "layer",
     "playwright",
+    "chromium",
     "serverless"
   ],
   "author": "",
