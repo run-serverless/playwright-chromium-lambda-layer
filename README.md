@@ -7,7 +7,9 @@ An AWS Lambda Layer containing [Playwright](https://www.npmjs.com/package/playwr
 - Node.js 20.x or later
 - NPM or Yarn
 - AWS CLI installed and configured with credentials
-- A centralised Serverless Framework deployment S3 bucket using the format <aws-account-id>--serverless-deploys
+- A centralised Serverless Framework deployment S3 bucket using the format {aws-account-id}--serverless-deploys
+
+Replace {aws-account-id} with your AWS account ID. Create the bucket with default settings.
 
 ## Installation
 
